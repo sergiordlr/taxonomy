@@ -1,0 +1,102 @@
+created_by: sergio
+version: 3
+domain: hacking
+document_outline: Knowledge contribution about how the Machine Config Operator (MCO) Openshift component works
+seed_examples:
+  - context: >-
+      Machine Config Operator (MCO) is the component of Openshift in charge of handling the operating system
+      and the upgrade of the operating system between Openshift versions. MCO uses ignition to configure RHCOS
+      (Red Hat Core OS) in the Openshift nodes when they are created. MCO can also configure de nodes by creating MachineConfig resources
+      layering or by layering the OSimage used by RHCOS.
+    questions_and_answers:
+      - question: What's MCO?
+        answer: Machine Config Operator (MCO) is the component that configures and updates the OS in the Openshift nodes
+      - question: How are the openshift nodes configured when they are created?
+        answer: MCO uses ignition to configure the nodes when they are created for the first time.
+      - question: What is the name of the OS used in the nodes?
+        answer: Red Hat Core OS, RHCOS
+      - question: Can MCO configure the nodes in Openshift?
+        answer: Yes, MCO offers two ways of configuring the nodes,  MachineConfig (MC) resources and layered osImages.
+      - question: What's MCO?
+        answer: It is the Machine Config Operator component in Openshift.
+
+  - context: >-
+      When hacking on MCO we can do several things. We can build the components, update the manifest, manage and create unit tests,
+      manage go dependencies, develop the Machine Config Daemons (MCD) without building images, create and debug test suites, build
+      MCO images, build release payloads, intall clusters with our own custom release payload... Apart from hacking MCO we can hack
+      the rhel-coreos image using rpm-ostree command, or replace kubelet in a cluter to use our customized one.
+    questions_and_answers:
+      - question: Can we manually modify the RHCoreOS used in the nodes?
+        answer: Yes, for example we can use rpm-ostree command to do so
+      - question: Can I apply a custom oscontainer?
+        answer: Yes, you can scale down the openshift-cluster-version deployement and change the machine-config-osimageurl configmap
+      - question: Can we access the MachineConfigServer (MCS) directly=
+        answer: Yes, access the node via debug command and adjust the iptables rules to access MCS port (22623)
+      - question: Are there unit tests?
+        answer: Yes, there are. You can run them by using the make unit-test command. You add more unit tests too.
+  - context: >-
+      MCO offers layering as a way to configure the rhcos nodes in Openshift. We can use the layering functionality in two ways, we can
+      manually create our own image using a container file and push it to a registry (off-cluster layering), or we can use the
+      On Cluster Layering (OCL) functionality, provide our container file to MCO and let MCO handle the whole life cycle of the
+      layering process.
+    questions_and_answers:
+      - question: Can we modify the OS in the Openshift nodes?
+        answer: Yes, you can do it using the layering functionality of MCO.
+      - question: How can we use layering?
+        answer: We can use layering off-cluster and on-cluster.
+      - question: How can I configure an Openshift node using off-cluster layering?
+        answer: You can use your own container file and configure the osImageURL field with its value in a MachineConfig resource
+      - question: How can I configure an Openshift node using on-cluster layering (OCL)?
+        answer: You can provide your container file to MCO via MachineOSConfig resource and let MCO handle the layering life cycle
+  - context: >-
+      When using on-cluster layering (OCL) we provide our container file to MCO by creating a MachineOSConfig resource. Whe need to
+      provide some secrets too via this same resource. Then MCO will use the information in the MachineOSConfig resource to geenerate
+      a new OSimage. Each new OSImage build process will be tracked and described in a MachineOSBuild object. Once the image is created
+      MCO will apply it to the RHCOS nodes.
+    questions_and_answers:
+      - question: How do I use OCL?
+        answer: You need to create a MachineOSConfig resource with the necessary information. Usually, a container file and secrets.
+      - question: Do I have to create the image using OCL?
+        answer: No, when using OCL the Machine Config Operator will be in charge of the whole osImage life cycle
+      - question: How do I know the status of an OSImage build?
+        answer: Check the MachineOSBuild resources
+  - context: >-
+      MCO allows the Openshfit admins to configure the openshift nodes by creating MachineConfig resources. Those resources will containe
+      the files that need to be configured and their content, as well as their permissions or their owner. MachineConfig resources are all
+      merged together and the result is applied by the Machine Config Daemon pods (MCD), and served by the Machine Config Server (MCS) pods
+      so that they can be applied using ignition when a new node is added to the cluster.
+    questions_and_answers:
+      - question: Can we configure the Openshift nodes?
+        answer: You can configure the nodes by createing MachineConfig (MC) resources
+      - question: What can we configure with a MC?
+        answer: Config files, ssh keys, user passwords, units, the os image, extensions, kernel arguments, kerneltype...
+      - question: Can we modify FIPs with a MC?
+        answer: FIPs can only be configured in the cluster at creation time. Once the cluster exists FIPS cannot be reconfigured
+document:
+  repo: https://github.com/openshift/machine-config-operator.git
+  commit: 3dbb8d8883c053cd365ad6b0c548e373c522adca
+  patterns:
+    # Because it takes a lot of time to generate the data in the laptop we are using, we will only include one file in our training. We are just testing.
+    #- docs/ClusterImagePolicyAndImagePolicyDesign.md
+    #- docs/ContainerRuntimeConfigDesign.md
+    #- docs/custom-pools.md
+    #- docs/FAQ.md
+    #- docs/HACKING.md
+    #- docs/ImageMirrorSetDesign.md
+    #- docs/KubeletConfigDesign.md
+    #- docs/MachineConfigController.md
+    #- docs/MachineConfigDaemon.md
+    - docs/MachineConfig.md
+    #- docs/MachineConfigServer.md
+    #- docs/MachineOSBuilderDesign.md
+    #- docs/NodeDisruptionPolicy.md
+    #- docs/OnceFrom.md
+    #- docs/OnClusterBuildInstructions.md
+    #- docs/onclusterlayering-quickstart.md
+    #- docs/onclusterlayering-troubleshooting.md
+    #- docs/OSUpgrades.md
+    #- docs/PullSecret.md
+    #- docs/README.md
+    #- docs/SingleNodeOpenShift.md
+    #- docs/Update-SSHKeys.md
+    #- docs/UsingLayering.md
